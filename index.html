@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#160d24"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Wallet Lockdown"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100b19">
+<title>Wallet Lockdown RPG</title>
+<style>
+*{box-sizing:border-box} :root{--bg:#0d0914;--panel:#171125;--panel2:#211735;--purple:#bd82ff;--pink:#ff72c9;--green:#65e3aa;--red:#ff6685;--gold:#ffd36a;--blue:#7fc9ff;--line:#68468e;--text:#f8efff;--muted:#aaa0bd}
+body{margin:0;background:radial-gradient(circle at 50% 0,#35204f,#0d0914 55%);color:var(--text);font-family:monospace;min-height:100vh}
+.app{max-width:620px;margin:auto;padding:18px 14px 44px}.pixel{font-family:"Courier New",monospace;font-weight:900;letter-spacing:2px}
+.eyebrow{font-size:10px;color:var(--pink);text-align:center}.title{font-size:26px;color:var(--purple);text-align:center;text-shadow:3px 3px #4a2569;margin:10px 0 5px}.sub{text-align:center;color:var(--muted);font-size:11px}
+.panel{background:linear-gradient(180deg,#1c1530,#120e1e);border:2px solid var(--line);box-shadow:5px 5px #05030a;border-radius:7px;padding:14px;margin:12px 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}.day{font-size:17px;color:var(--purple);font-weight:bold}.hp{font-weight:bold;color:var(--green);font-size:11px}
+.progress{height:17px;background:#08060d;border:2px solid #4e356b;margin:12px 0}.fill{height:100%;width:0;background:repeating-linear-gradient(90deg,#bd82ff 0 12px,#9b62df 12px 15px)}
+button{font-family:monospace;font-weight:900;font-size:11px;padding:13px 10px;border:2px solid #e1bfff;background:#bd82ff;color:#160d22;box-shadow:4px 4px #5b347e;cursor:pointer}button:active{transform:translate(2px,2px);box-shadow:2px 2px #5b347e}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#241a3c;color:#fff;border-color:#68468e}.row{display:flex;gap:9px}.row>*{flex:1}.wide{width:100%}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.grid .panel{margin:0}.label{color:var(--muted);font-size:10px}.money{font-size:20px;font-weight:bold;margin-top:7px}.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.blue{color:var(--blue)}
+.notice{font-size:12px;line-height:1.55;color:#ddd2ed}.goalbar{height:12px;background:#08060d;border:1px solid #4e356b;margin:8px 0}.goalfill{height:100%;width:0;background:var(--green)}
+input,select{width:100%;padding:12px;margin:5px 0 9px;background:#0b0811;color:#fff;border:2px solid #4b3465;font:16px monospace;border-radius:3px}
+.days{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-top:14px}.daybox.milestone{box-shadow:0 0 0 2px var(--gold);color:var(--gold);position:relative;min-height:43px}.daybox small{display:block;position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:5px;white-space:nowrap;color:var(--gold)}.daybox.done.milestone{color:#111}.daybox{height:36px;border:1px solid #563b73;display:flex;align-items:center;justify-content:center;font-size:10px;color:#8f819f}.daybox.done{background:var(--green);color:#111;border-color:var(--green)}.daybox.current{background:var(--purple);color:#111;border-color:#e1bfff}.daybox.failed{background:var(--red);color:#111;border-color:var(--red)}
+.ach{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.badge{border:1px solid #49345e;padding:9px;background:#120d20;opacity:.42}.badge.unlocked{opacity:1;border-color:var(--gold);background:#241d2d}.badge b{display:block;color:var(--gold);font-size:11px;margin-bottom:4px}.badge span{font-size:10px;color:var(--muted)}.streakbox{margin-top:10px;padding:10px;border:1px dashed #76519a;background:#120d20;font-size:10px}.streakbox b{color:var(--pink)}
+.lootitem{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #3c2b50}.lootitem:last-child{border-bottom:0}.lootitem b{color:var(--gold)}
+.xpbar{height:10px;background:#08060d;border:1px solid #4e356b;margin-top:7px}.xpfill{height:100%;width:0;background:var(--pink)}
+.tx{display:flex;justify-content:space-between;border-bottom:1px solid #3c2b50;padding:10px 0;font-size:12px}.tx small{color:var(--muted)}
+.modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;padding:18px;z-index:9}.box{max-width:440px;width:100%;background:#171126;border:3px solid var(--purple);box-shadow:8px 8px #05030a;padding:20px}.box h2{margin-top:0;font-size:17px;color:var(--purple)}.box p{line-height:1.6;color:#ddd2ed}.rac{text-align:center;font-size:44px}.status{color:var(--gold);font-size:10px}.footer{text-align:center;color:#665a76;font-size:10px;margin-top:22px}
+
+/* v12 GAME FEEL */
+button, input, select { transition: transform .12s ease, filter .12s ease, box-shadow .12s ease; }
+button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+button:active { transform: translateY(2px) scale(.98); }
+.panel, .daybox, .badge, .lootitem { transition: transform .18s ease, box-shadow .18s ease; }
+.panel.flash { animation: panelFlash .55s ease; }
+@keyframes panelFlash { 0%,100%{transform:translateY(0)} 35%{transform:translateY(-4px);box-shadow:0 0 28px rgba(210,120,255,.32)} }
+.daybox.reward-pop { animation: rewardPop .65s ease; }
+@keyframes rewardPop { 0%{transform:scale(.8);opacity:.4} 55%{transform:scale(1.14)} 100%{transform:scale(1);opacity:1} }
+.coin { position:fixed; z-index:9999; pointer-events:none; font-size:26px; animation: coinFly 900ms cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes coinFly { 0%{transform:translate(0,0) scale(.7) rotate(0);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(1.2) rotate(540deg);opacity:0} }
+.toast { position:fixed; left:50%; top:16px; transform:translateX(-50%) translateY(-120px); z-index:9998; background:#151025; border:2px solid #b86cff; color:#fff; padding:12px 18px; box-shadow:0 8px 30px rgba(0,0,0,.35); font-weight:800; text-align:center; max-width:min(92vw,520px); animation: toastIn 2.4s ease forwards; }
+@keyframes toastIn { 0%,100%{transform:translateX(-50%) translateY(-120px);opacity:0} 12%,82%{transform:translateX(-50%) translateY(0);opacity:1} }
+#levelUpModal .box { animation: levelIn .42s cubic-bezier(.2,1.4,.4,1); }
+@keyframes levelIn { 0%{transform:scale(.65) rotate(-3deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
+#dayCompleteModal .box { animation: levelIn .42s cubic-bezier(.2,1.4,.4,1); }
+
+
+html{-webkit-text-size-adjust:100%}body{margin:0;min-height:100vh;overscroll-behavior-y:none}
+button,input,select{font-size:16px;min-height:48px}button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+input,select{box-sizing:border-box;width:100%}.app{width:min(720px,calc(100% - 24px));margin:0 auto;padding:18px 0 96px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:grid;grid-template-columns:repeat(4,1fr);
+padding:8px max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom));background:rgba(15,10,30,.96);
+border-top:2px solid #7b45a5;backdrop-filter:blur(12px)}
+.bottomnav button{min-height:52px;background:transparent;border:0;color:#cdb9df;box-shadow:none;padding:4px 2px;font-weight:900;font-size:12px}
+.bottomnav button span{display:block;font-size:20px;line-height:22px}.bottomnav button.active{color:#fff;text-shadow:0 0 10px #b86cff}
+.view{display:none}.view.active{display:block}.simplelist{display:grid;gap:8px}
+.minirow{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid #53366b;background:#120d20}
+.install-banner{display:none;margin:10px 0 14px;padding:12px;border:2px solid #7b45a5;background:#171027;border-radius:10px}
+.install-banner.show{display:block}.install-banner button{width:100%;margin-top:8px}
+@media(min-width:760px){.app{padding-bottom:30px}.bottomnav{position:static;margin-top:16px;border:2px solid #7b45a5;border-radius:10px}}
+@media(max-width:520px){.app{width:min(100% - 16px,720px);padding-top:12px}.title{font-size:clamp(28px,9vw,44px)!important}.sub{font-size:12px!important}
+.grid{grid-template-columns:1fr 1fr;gap:8px!important}.panel{padding:12px!important}.row{flex-direction:column}.row>*{width:100%}.days{grid-template-columns:repeat(5,1fr)!important}}
+
+</style>
+</head>
+<body>
+<div class="app"><div id="installBanner" class="install-banner"><b>📱 INSTALL WALLET LOCKDOWN</b><br><small>On iPhone: Share → Add to Home Screen.</small><button id="installDismiss" class="secondary">GOT IT</button></div>
+<div id="homeView" class="view active"><div class="eyebrow pixel">◈ SAVE YOUR MONEY QUEST ◈</div>
+<div class="title pixel">WALLET LOCKDOWN</div>
+<div class="sub">30 DAYS • NO IMPULSE PURCHASES • GET RICHER</div>
+
+<div class="panel">
+<div class="top"><div class="day" id="day">DAY 1 / 30</div><div class="hp" id="hp">WALLET HP: 100%</div></div>
+<div class="progress"><div class="fill" id="fill"></div></div>
+<div class="row"><button id="startBtn">START 30 DAYS</button><button id="checkBtn" class="secondary">DAILY CHECK-IN</button></div>
+</div>
+
+<div id="msg" class="panel notice">🎮 Your quest awaits. Food, gas, and bills are allowed. Everything else is the final boss.</div>
+
+<div class="grid">
+<div class="panel"><div class="label">REAL MONEY SAVED</div><div class="money green" id="saved">$0.00</div></div>
+<div class="panel"><div class="label">ESSENTIALS SPENT</div><div class="money green" id="essential">$0.00</div></div>
+<div class="panel"><div class="label">NON-ESSENTIAL DAMAGE</div><div class="money red" id="damage">$0.00</div></div>
+<div class="panel"><div class="label">LEVEL / XP</div><div class="money gold" id="level">LVL 1</div><div class="xpbar"><div class="xpfill" id="xpfill"></div></div><div class="label" id="xptxt">0 / 100 XP</div></div>
+<div class="panel"><div class="label">CLEAN DAYS</div><div class="money blue" id="clean">0</div><div class="streakbox">🔥 STREAK <b id="streak">0 DAYS</b><br>🏆 BEST <b id="best">0 DAYS</b></div></div>
+<div class="panel"><div class="label">RACCOON STATUS</div><div class="money" id="racStatus">CALM</div></div>
+</div>
+
+<div class="panel">
+<div class="top"><div class="label">🎯 SAVINGS QUEST</div><div class="gold" id="goalText">$500 GOAL</div></div>
+<input id="goal" type="number" min="1" step="1" placeholder="Savings goal, e.g. 500">
+<div class="row"><input id="saveAmt" type="number" min="0" step="0.01" placeholder="Money saved today"></div>
+<button id="saveBtn" class="wide">💰 LOG MONEY SAVED</button>
+<div class="goalbar"><div class="goalfill" id="goalFill"></div></div>
+<button id="goalBtn" class="secondary wide">SET SAVINGS GOAL</button>
+</div>
+
+<div class="panel">
+<div class="label">QUEST LOG: ADD PURCHASE</div>
+<input id="desc" placeholder="What did you buy?">
+<input id="amt" type="number" min="0" step="0.01" placeholder="Amount">
+<select id="cat"><option>Food</option><option>Gas</option><option>Bills</option><option>Other</option></select>
+<button id="addBtn" class="wide">+ ADD TO LOG</button>
+</div>
+
+<div class="panel"><div class="label">🗺️ 30-DAY QUEST MAP</div><div class="notice">Reach each node. Milestone days unlock extra bragging rights.</div><div id="days" class="days"></div></div>
+<div class="panel"><div class="label">ACHIEVEMENTS</div><div id="ach" class="ach"></div></div>
+<div class="panel"><div class="top"><div class="label">🎒 LOOT & TITLES</div><div class="status" id="rank">WALLET NOVICE</div></div><div id="loot" class="notice">No rewards claimed yet.</div></div>
+<div class="panel"><div class="label">PURCHASE LOG</div><div id="list">Nothing logged yet.</div></div>
+
+<div class="panel">
+<div class="label">🦝 FINANCIAL GATEKEEPER</div>
+<p class="notice">Before buying something unnecessary, consult the ancient raccoon.</p>
+<button id="roastBtn" class="secondary wide">🦝 DO I REALLY NEED THIS?</button>
+</div>
+<div class="footer">LOCAL SAVE • NO ACCOUNT • WALLET LOCKDOWN RPG v13</div></div>
+<div id="statsView" class="view"><div class="eyebrow pixel">◈ WALLET ARCHIVE ◈</div><div class="title pixel">STATS</div>
+<div class="panel"><div class="label">REAL MONEY SAVED</div><div class="money green statbig" id="v13Saved">$0.00</div></div>
+<div class="panel"><div class="label">TOTAL ESSENTIALS</div><div class="money green statbig" id="v13Essential">$0.00</div></div>
+<div class="panel"><div class="label">NON-ESSENTIAL DAMAGE</div><div class="money red statbig" id="v13Damage">$0.00</div></div>
+<div class="panel"><div class="label">QUEST PROGRESS</div><div class="notice" id="v13StatsText">Start the quest to begin.</div></div>
+<div class="panel"><div class="label">CATEGORY BREAKDOWN</div><div id="v13Cats" class="simplelist"></div></div></div>
+<div id="calendarView" class="view"><div class="eyebrow pixel">◈ QUEST MAP ◈</div><div class="title pixel">30 DAYS</div>
+<div class="panel"><div class="label">YOUR JOURNEY</div><div class="notice">Green = cleared • Pink = missed • Purple = upcoming</div><div id="v13Calendar" class="days"></div></div>
+<div class="panel"><div class="label">MILESTONES</div><div class="simplelist"><div class="minirow"><b>🌱 DAY 1</b><span>QUEST BEGINS</span></div><div class="minirow"><b>🔥 DAY 7</b><span>SURVIVOR</span></div><div class="minirow"><b>⚔️ DAY 15</b><span>HALFWAY HERO</span></div><div class="minirow"><b>🔥 DAY 21</b><span>FINAL STRETCH</span></div><div class="minirow"><b>👑 DAY 30</b><span>WALLET LEGEND</span></div></div></div></div>
+<div id="settingsView" class="view"><div class="eyebrow pixel">◈ CONFIGURATION ◈</div><div class="title pixel">SETTINGS</div>
+<div class="panel"><div class="label">SAVINGS GOAL</div><p class="notice">Current goal: <b id="v13Goal">$500</b></p><button id="v13GoalBtn" class="wide">CHANGE GOAL 🎯</button></div>
+<div class="panel"><div class="label">CHALLENGE DATA</div><p class="notice">Everything is stored locally on this device. No account required.</p><button id="v13ResetBtn" class="secondary wide">RESET QUEST</button></div>
+<div class="panel"><div class="label">INSTALL</div><p class="notice">On iPhone Safari, use Share → Add to Home Screen to install Wallet Lockdown.</p></div></div>
+<nav class="bottomnav" aria-label="App navigation"><button class="active" data-view="homeView"><span>🏠</span>HOME</button><button data-view="statsView"><span>📊</span>STATS</button><button data-view="calendarView"><span>🗺️</span>QUEST</button><button data-view="settingsView"><span>⚙️</span>SETTINGS</button></nav>
+</div>
+
+
+<div id="dayCompleteModal" class="modal" style="display:none"><div class="box">
+  <div class="rac">🦝</div>
+  <h2 id="dayCompleteTitle">DAY COMPLETE!</h2>
+  <p id="dayCompleteBody">⭐ Clean day bonus unlocked.</p>
+  <div class="notice" id="dayCompleteReward">🎁 REWARD</div>
+  <button id="dayCompleteClose" class="wide">CONTINUE QUEST ⚔️</button>
+</div></div>
+
+<div id="levelUpModal" class="modal"><div class="box"><div class="rac">🦝</div><h2 id="levelUpTitle">LEVEL UP!</h2><p id="levelUpBody">⭐ Your wallet powers increased.</p><button id="levelClose" class="wide">CLAIM REWARD 🎁</button></div></div>
+
+<div id="startModal" class="modal"><div class="box"><div class="rac">🦝</div><h2>QUEST ACCEPTED?</h2><p>For the next <b>30 days</b>, only <span class="green">FOOD</span>, <span class="green">GAS</span>, and <span class="green">BILLS</span> get past the gate.</p><div class="row"><button id="goBtn">LET'S GO 🔥</button><button id="laterBtn" class="secondary">NOT YET</button></div></div></div>
+
+<div id="checkModal" class="modal"><div class="box"><div class="rac">🦝</div><h2>DAILY CHECK-IN</h2><p>Did you avoid unnecessary spending today?</p><div class="row"><button id="yesBtn">YES, LEGEND</button><button id="noBtn" class="secondary">I MESSED UP</button></div></div></div>
+
+<script src="app.js"></script>
+</body>
+</html>
